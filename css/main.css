@@ -6,24 +6,24 @@
 }
 
 .title {
-	text-anchor:middle;
-}
-
-.node {
-  border: solid 1px white;
-  font: 10px sans-serif;
-  line-height: 12px;
-  overflow: hidden;
-  position: absolute;
-  text-indent: 2px;
-  color:white;
+	text-anchor: middle;
 }
 
 #vis {
   position:relative;
-  padding-bottom:100px;
+  width: 1005px;
+  margin-right: 0;
 }
 
-.btn-group {
-  margin-bottom:20px;
+.btn-group-vertical{
+  padding-top: 150px;
+}
+
+.description {
+  margin-bottom: 30px;
+}
+
+.col-sm-3 {
+  width: 10%;
+  float: right;
 }

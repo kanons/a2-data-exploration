@@ -11,7 +11,7 @@
     <script src="https://code.jquery.com/jquery.min.js"></script>
     <link href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.5/css/bootstrap.min.css" rel="stylesheet" type="text/css" />
     <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.5/js/bootstrap.min.js"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/d3/4.8.0/d3.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/d3/4.7.4/d3.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/d3-tip/0.7.1/d3-tip.js"></script>
     <link rel="stylesheet" href="//rawgithub.com/Caged/d3-tip/master/examples/example-styles.css">
 
@@ -22,21 +22,74 @@
     <script src="js/main.js"></script>
 </head>
 
-<body class="container">
-    <h1>A2: Data Exploration</h1>
-    <p>The following visualization shows the number of TSA claims in 2015. Source is from the <a href="https://www.dhs.gov/tsa-claims-data">Department of Homeland Security</a></p>
-    <div class="btn-group" data-toggle="buttons">
-        <label class="btn btn-primary active">
-				<input value="claim_site" type="radio" name="options" id="option1" autocomplete="off" checked>Claim Site
-			</label>
-        <label class="btn btn-primary">
-				<input value="claim_type" type="radio" name="options" id="option2" autocomplete="off" >Claim Type
-			</label>
-        <label class="btn btn-primary">
-				<input value="incident_date" type="radio" name="options" id="option2" autocomplete="off">Item Category
-			</label>
+<body>
+    <div class="jumbotron">
+        <div class="container">
+            <h1>A2: Data Exploration</h1>
+            <p>
+                The following visualization shows the death rates of impaired driving from 2014 by State. Source: 
+                <a href="https://catalog.data.gov/dataset/impaired-driving-death-rate-by-age-and-gender-2012-all-states-587fd">Data.gov</a>
+            </p>
+        </div>
     </div>
-    <div id="vis"></div>
+
+    <div class="container">
+        <p class="lead">
+            The data is composed of the rate of deaths by age and gender (per 100K population) for people killed in crashes involving a driver with BAC greater than or equal to 0.08%. 
+            States without a bar indicate supressed data where fatality rates based on fewer than 20 deaths were suppressed.
+        </p>
+        <div class="row">
+            <div class="col-sm-9" style="vertical-align: middle;">
+                <div id="vis"></div>
+            </div>
+            <div class="col-sm-3" style="vertical-align: middle;">
+                <div class="btn-group-vertical pull-right" data-toggle="buttons">
+                    <label class="btn btn-primary active">
+                            <input value="All Ages" class="age" type="radio" name="options" id="option1" autocomplete="off" checked>All Ages
+                    </label>
+                    <label class="btn btn-primary">
+                            <input value="Ages 0-20" class="age" type="radio" name="options" id="option2" autocomplete="off" >Ages 0-20
+                    </label>
+                    <label class="btn btn-primary">
+                            <input value="Ages 21-34" class="age" type="radio" name="options" id="option3" autocomplete="off" >Ages 21-34
+                    </label>
+                    <label class="btn btn-primary">
+                            <input value="Ages 35+" class="age" type="radio" name="options" id="option4" autocomplete="off" >Ages 35+
+                    </label>
+                    <label class="btn btn-primary">
+                            <input value="Male" class="sex" type="radio" name="options" id="option1" autocomplete="off">Male
+                    </label>
+                    <label class="btn btn-primary">
+                            <input value="Female" class="sex" type="radio" name="options" id="option2" autocomplete="off" >Female
+                    </label>
+                </div>
+            </div>
+        </div>
+        <div class="description">
+            <h2>Data Expression and Effectiveness</h2>
+            <p>
+                For the visual layout, I chose to display the data in a bar chart. The data set included a list of states with corresponding death rates. 
+                By displaying the bar chart, the states’ values are discrete and the length each bar is encoded with the death rate. 
+                This design decision allows the viewer to find data that suits their interests because the bars are separate yet on the same axis. 
+                This optimally <i>expresses</i> the data set because the data is organized in a way that is easy to compare or extract values. 
+                The controls chosen for the visualization are the age and gender of the deaths. The ages and gender for these controls are individual columns in the original file where the values had to be displayed ‘as-is’. 
+                To keep the interactions intuitive, I used a button group to indicate that only one button can be activated at a time instead of separating the age and gender filters. 
+                Instead of displaying a grouped bar chart when the buttons were selected, I chose to display each chart separately to <i>effectively</i> show the data. 
+                Because there was suppressed data included in this data set, the bars for the suppressed data are not shown. Due to the gaps in the data, showing each chart separately clearly shows which data was suppressed for which state for which control. 
+                The transitions allow for the change in the data to be captured by the eye and makes it easier to compare the length and position of the bars. 
+                The data was sorted alphabetically to keep a constant between the controls. This sorting keeps the labels of the states in the same position, making it easier to track the data between controls.
+            </p>
+            <h2>Control Elements: Explained</h2>
+            <p>
+                The ‘All Ages’ control give an overview of the impaired driving death rates which evokes the user questions regarding the overall trend of death rates among the states. 
+                Some questions for this control could be "Which state has the highest rate?"" or something more relatable to them such as "How does Washington State compare with other states?" 
+                Each of the following ‘age’ controls of ‘0-20’, ‘21-34’, and ‘35+’ evokes questions regarding the comparison between and within each age group. For ‘0-20’, would there be lower rates? 
+                The second and third age group controls can lead the user to question the correlation between legal drinking age and death rates. For the gender controls of ‘female’ and ‘male’, it would lead to questions comparing the two groups. 
+                This could be regarding overall trends such as which has a higher rates overall, or it could be regarding which states have higher rates for which gender. Through the tools, I have found that death rates for older groups (21-35+) is higher. 
+                In addition, by using the ‘male’ and ‘female’ controls, it can be found that males have higher death rates for impaired driving.
+            </p>
+        </div>
+    </div>
 </body>
 
 </html>

@@ -1,222 +1,222 @@
-/* Create a barchart of drinking patterns*/
+/* Bar chart of impaired driving death rates from 2014*/
 $(function() {
-    // Read in prepped_data file
-    d3.csv('data/claims-data-2015.csv', function(error, data) {
+    // Read in data file
+    // https://catalog.data.gov/dataset/impaired-driving-death-rate-by-age-and-gender-2012-all-states-587fd
+    d3.csv('/data/Impaired_Driving_Data.csv', function(error, allData) {
 
-        /************************************** Data prep ***************************************/
+        // Variables for scale and filtered data
+        var xScale, yScale, currentData, checking;
 
-        // Track the sex (male, female) and drinking type (any, binge) in variables
-        var measure = 'claim_site';
+        // Track the death rate column in variable
+        var rate = 'All Ages';
 
-        // You'll need to *aggregate* the data such that, for each device-app combo, you have the *count* of the number of occurances
-        data.forEach(function(d) {
-            d.value = 1;
-        });
-
-        var countSite = d3.nest()
-            .key(function(d) {return d.Claim_Site;})
-            .rollup(function(d) { 
-                return d3.sum(d, function(g) {return g.value; });
-            }).entries(data);
-
-        var countType = d3.nest()
-            .key(function(d) {return d.Claim_Type;})
-            .rollup(function(d) { 
-                return d3.sum(d, function(g) {return g.value; });
-            }).entries(data);
-
-        var countMonth = d3.nest()
-            .key(function(d) {
-                var date = new Date(d.Incident_D);
-                var month = date.getMonth();
-                //var months = [ "January", "February", "March", "April", "May", "June", "July", "August", "September", "October", "November", "December" ];
-                //return months[date.getMonth()];
-                return month;
-                //return d.Item_Category;
-            })
-            .rollup(function(d) { 
-                return d3.sum(d, function(g) {return g.value; });
-            }).entries(data);
-        // Margin: how much space to put in the SVG for axes/titles
+        // Margin in SVG for axes and titles
         var margin = {
             left: 70,
             bottom: 100,
             top: 50,
-            right: 50
+            right: 50,
         };
 
-        // Height and width of the total area
-        var height = 600;
-        var width = 1000;
+        // Height and width of the drawing area
+        var height = 600 - margin.bottom - margin.top;
+        var width = 1000 - margin.left - margin.right;
 
-        // Height/width of the drawing area for data symbols
-        var drawHeight = height - margin.bottom - margin.top;
-        var drawWidth = width - margin.left - margin.right;
-
-        // Select SVG to work with, setting width and height (the vis <div> is defined in the index.html file)
+        // Select SVG and set dimensions
         var svg = d3.select('#vis')
             .append('svg')
+            .attr('height', 600)
+            .attr('width', 1000);
+        
+        // Append text to SVG for title
+        var title = svg.append('text')
+
+        // Append 'g' element, translate to top left, set dimensions
+        var g = svg.append('g')
+            .attr('transform', 'translate(' + margin.left+ ',' + margin.top + ')')
             .attr('height', height)
             .attr('width', width);
 
-        // Append a 'g' element in which to place the rects, shifted down and right from the top left corner
-        var g = svg.append('g')
-            .attr('transform', 'translate(' + margin.left + ',' + margin.top + ')')
-            .attr('height', drawHeight)
-            .attr('width', drawWidth);
-
-        // Append an xaxis label to your SVG, specifying the 'transform' attribute to position it (don't call the axis function yet)
+        // Append x-axis label to SVG and position
         var xAxisLabel = svg.append('g')
-            .attr('transform', 'translate(' + margin.left + ',' + (drawHeight + margin.top) + ')')
-            .attr('class', 'axis');
+            .attr('transform', 'translate(' + margin.left + ',' + (height + margin.top) + ')')
+            .attr('class', 'axis')
 
-        // Append a yaxis label to your SVG, specifying the 'transform' attribute to position it (don't call the axis function yet)
+        // Append y-axis label to SVG and position
         var yAxisLabel = svg.append('g')
             .attr('class', 'axis')
             .attr('transform', 'translate(' + margin.left + ',' + (margin.top) + ')');
 
-        // Append text to label the y axis (don't specify the text yet)
+        // Append 'text' to label the y axis
         var xAxisText = svg.append('text')
-            .attr('transform', 'translate(' + (margin.left + drawWidth / 2) + ',' + (drawHeight + margin.top + 40) + ')')
+            .attr('transform', 'translate(' + (margin.left + width / 2) + ',' + (height + margin.top + 80) + ')')
             .attr('class', 'title');
 
-        // Append text to label the y axis (don't specify the text yet)
+        // Append 'text' to label the y axis
         var yAxisText = svg.append('text')
-            .attr('transform', 'translate(' + (margin.left - 40) + ',' + (margin.top + drawHeight / 2) + ') rotate(-90)')
+            .attr('transform', 'translate(' + (margin.left - 40) + ',' + (margin.top + height / 2) + ') rotate(-90)')
             .attr('class', 'title');
 
-        // Define xAxis using d3.axisBottom(). Scale will be set in the setAxes function.
-        var xAxis = d3.axisBottom();
+        var checkData = function(d) {
+                if(rate == 'All Ages') {
+                    checking = d.all_ages;
+                } else if(rate == 'Ages 0-20') {
+                    checking = d.ages_0_20;
+                } else if(rate == 'Ages 21-34') {
+                    checking = d.ages_21_34;
+                } else if(rate == 'Ages 35+') {
+                    checking = d.ages_35;
+                } else if(rate == 'Male') {
+                    checking = d.male;
+                } else if(rate == 'Female') {
+                    checking = d.female;
+                }
+                return checking;
+        }
 
-        // Define yAxis using d3.axisLeft(). Scale will be set in the setAxes function.
-        var yAxis = d3.axisLeft()
-            .tickFormat(d3.format('.2s'));
+        // Function to set scales
+        var setScales = function(data) {
+            // Get states for the domain of x-scale
+            var states = data.map(function(d) {return d.state;});
 
-        // Define an xScale with d3.scaleBand. Domain/rage will be set in the setScales function.
-        var xScale = d3.scaleBand();
+            // Ordinal xScale
+            xScale = d3.scaleBand()
+                .range([0, width], .2)
+                .domain(states)
+                .padding(0.1);
 
-        // Define a yScale with d3.scaleLinear. Domain/rage will be set in the setScales function.
-        var yScale = d3.scaleLinear();
-
-        // Write a function for setting scales.
-        var setScales = function(currentData) {
-            // Get the unique values of states for the domain of your x scale
-            var xValues = currentData.map(function(d) {
-                return d.key;
+            // Get min/max values of the percent data
+            var yMin = d3.min(data, function(d) {
+                return checkData(d);
             });
 
-            // Set the domain/range of your xScale
-            xScale.range([0, drawWidth])
-                .padding(0.2)
-                .domain(xValues);
-
-            // Get min/max values of the percent data (for your yScale domain)
-            var yMin = d3.min(currentData, function(d) {
-                return d.value;
+            // Get y-maximum for domain of y-scale
+            var yMax = d3.max(data, function(d) {
+                return checkData(d);
             });
 
-            var yMax = d3.max(currentData, function(d) {
-                return d.value;
-            });
-
-            // Set the domain/range of your yScale
-            yScale.range([drawHeight, 0])
+            // Define the yScale
+            yScale = d3.scaleLinear()
+                .range([height, 0])
                 .domain([0, yMax]);
-        };
+        }
 
         // Function for setting axes
         var setAxes = function() {
-            // Set the scale of your xAxis object
-            xAxis.scale(xScale);
+            // Define x-axis using d3.axisBottom(), assigning the scale as the xScale
+            var xAxis = d3.axisBottom()
+                .scale(xScale);
 
-            // Set the scale of your yAxis object
-            yAxis.scale(yScale);
+            // Define y-axis using d3.axisLeft(), assigning the scale as the yScale
+            var yAxis = d3.axisLeft()
+                .scale(yScale)
+                .tickFormat(d3.format('.2s'));
 
-            // Render (call) your xAxis in your xAxisLabel
-            xAxisLabel.transition().duration(1500).call(xAxis);
+            // Call xAxis, rotate axis labels
+            xAxisLabel.transition().duration(1500).call(xAxis)
+                .selectAll('text')
+                .style("text-anchor", "end")
+                .attr('transform', 'rotate(-45) translate(-5, -5)');
 
-            // Render (call) your yAxis in your yAxisLabel
+            // Call yAxis
             yAxisLabel.transition().duration(1500).call(yAxis);
 
-            // Update xAxisText and yAxisText labels
-            xAxisText.text(measure);
-            yAxisText.text('Number of Claims');
+            // x-axis title label
+            xAxisText.text('State')
+
+            // y-axis title label
+            yAxisText.text('Death Rate (per 100K population)')
+
+            // Chart title, changes on rate type
+            title.text('Impaired Driving Death Rates' + ' ('+ rate + ')')
+            .attr('transform', 'translate(' + (margin.left + width / 2) + ',' + (margin.top-20)  + ')')
+            .attr('text-anchor', 'middle')  
+            .style('font-size', '16px')
+            .style('font-weight', 'bold');
+
         }
 
-        // Write a function to filter down the data to the current sex and type
+        // Function to filter down data to current rate type
         var filterData = function() {
-            // var currentData;
-            if(measure == 'claim_site') {
-                var currentData = countSite;
-            } else if(measure == 'claim_type') {
-                var currentData = countType
-            } else if(measure == 'incident_date') {
-                var currentData = countMonth;
-            }
-            return currentData;
-        };
-
-        // Add tip
-        var tip = d3.tip().attr('class', 'd3-tip').html(function(d) {
-            return d.value;
-        });
-        g.call(tip);
+            currentData = allData
+                .filter(function(d) {
+                    return checkData(d);
+                })
+                
+                // Sort the data alphabetically
+                // Hint: http://stackoverflow.com/questions/6712034/sort-array-by-firstname-alphabetically-in-javascript
+                .sort(function(a, b) {
+                    if (a.state < b.state) return -1;
+                    if (a.state > b.state) return 1;
+                    return 0;
+                });
+        }
 
         // Store the data-join in a function: make sure to set the scales and update the axes in your function.
-        var draw = function(currentData) {
+        var draw = function(data) {
             // Set scales
-            setScales(currentData);
+            setScales(data);
 
             // Set axes
             setAxes();
 
             // Select all rects and bind data
-            var bars = g.selectAll('rect').data(currentData);
+            var bars = g.selectAll('rect').data(data);
 
-            // Use the .enter() method to get your entering elements, and assign initial positions
+            // Get entering elements and assign position
             bars.enter().append('rect')
                 .attr('x', function(d) {
-                    return xScale(d.key);
+                    return xScale(d.state);
                 })
                 .attr('y', function(d) {
-                    return drawHeight;
+                    return yScale(checkData(d));
                 })
-                .attr('height', 0)
-                .attr('class', 'bar')
-                .on('mouseover', tip.show)
-                .on('mouseout', tip.hide)
+                .attr('height', function(d) {
+                    return height - yScale(checkData(d));
+                })
                 .attr('width', xScale.bandwidth())
-                .merge(bars)
-                .transition()
-                .duration(500)
+                .attr('class', 'bar')
+                .attr('fill', '#ff4646')
+                .attr('title', function(d) {
+                    return (d.state + ": " + checkData(d));
+                });
+
+            // Remove elements not in data
+            bars.exit().remove();
+
+            // Transition properties of the update selection
+            bars.transition()
+                .duration(1500)
                 .delay(function(d, i) {
                     return i * 50;
                 })
-                .attr('y', function(d) {
-                    return yScale(d.value);
-                })
                 .attr('height', function(d) {
-                    return drawHeight - yScale(d.value);
+                    return height - yScale(checkData(d));
+                })
+                .attr('y', function(d) {
+                    return yScale(checkData(d));
                 });
-
-            // Use the .exit() and .remove() methods to remove elements that are no longer in the data
-            bars.exit().remove();
         };
 
-        // Assign a change event to input elements to set the sex/type values, then filter and update the data
+        // Change event to input elements to set rate value and update
         $("input").on('change', function() {
-            // Get value, determine if it is the sex or type controller
             var val = $(this).val();
-            measure = val;
+            rate = val;
 
             // Filter data, update chart
-            var currentData = filterData();
+            filterData();
             draw(currentData);
         });
 
         // Filter data to the current settings then draw
-        var currentData = filterData();
+        filterData();
         draw(currentData);
+
+        /* Using jQuery, select all circles and apply a tooltip */
+        $("rect").tooltip({
+            'container': 'body',
+            'placement': 'top'
+        });
 
     });
 });
