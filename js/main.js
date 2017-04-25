@@ -2,7 +2,7 @@
 $(function() {
     // Read in data file
     // https://catalog.data.gov/dataset/impaired-driving-death-rate-by-age-and-gender-2012-all-states-587fd
-    d3.csv('/data/Impaired_Driving_Data.csv', function(error, allData) {
+    d3.csv('data/Impaired_Driving_Data.csv', function(error, allData) {
 
         // Variables for scale and filtered data
         var xScale, yScale, currentData, checking;
