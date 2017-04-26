@@ -1,27 +1,27 @@
 /* Bar chart of impaired driving death rates from 2014*/
 $(function() {
+    // Variables for scale and filtered data
+    var xScale, yScale, currentData, checking;
+
+    // Track the death rate column in variable
+    var rate = 'All Ages';
+
+    // Margin in SVG for axes and titles
+    var margin = {
+        left: 70,
+        bottom: 100,
+        top: 50,
+        right: 50,
+    };
+
+    // Height and width of the drawing area
+    var height = 600 - margin.bottom - margin.top;
+    var width = 1000 - margin.left - margin.right;
+
     // Read in data file
     // https://catalog.data.gov/dataset/impaired-driving-death-rate-by-age-and-gender-2012-all-states-587fd
     d3.csv('data/Impaired_Driving_Data.csv', function(error, allData) {
-
-        // Variables for scale and filtered data
-        var xScale, yScale, currentData, checking;
-
-        // Track the death rate column in variable
-        var rate = 'All Ages';
-
-        // Margin in SVG for axes and titles
-        var margin = {
-            left: 70,
-            bottom: 100,
-            top: 50,
-            right: 50,
-        };
-
-        // Height and width of the drawing area
-        var height = 600 - margin.bottom - margin.top;
-        var width = 1000 - margin.left - margin.right;
-
+        /* ************************************** Create chart wrappers ***************************************/
         // Select SVG and set dimensions
         var svg = d3.select('#vis')
             .append('svg')
@@ -36,6 +36,37 @@ $(function() {
             .attr('transform', 'translate(' + margin.left+ ',' + margin.top + ')')
             .attr('height', height)
             .attr('width', width);
+
+        /* ********************************** Data prep  ********************************** */
+
+        // Function to filter down data to current rate type
+        var filterData = function() {
+            currentData = allData
+                .filter(function(d) {
+                    return checkData(d);
+                })
+        }
+
+        /* ********************************** Select rate  ********************************** */
+
+        var checkData = function(d) {
+                if(rate == 'All Ages') {
+                    checking = d.all_ages;
+                } else if(rate == 'Ages 0-20') {
+                    checking = d.ages_0_20;
+                } else if(rate == 'Ages 21-34') {
+                    checking = d.ages_21_34;
+                } else if(rate == 'Ages 35+') {
+                    checking = d.ages_35;
+                } else if(rate == 'Male') {
+                    checking = d.male;
+                } else if(rate == 'Female') {
+                    checking = d.female;
+                }
+                return checking;
+        }
+
+        /* ********************************** Define scale and axis variables  ********************************** */
 
         // Append x-axis label to SVG and position
         var xAxisLabel = svg.append('g')
@@ -57,23 +88,7 @@ $(function() {
             .attr('transform', 'translate(' + (margin.left - 40) + ',' + (margin.top + height / 2) + ') rotate(-90)')
             .attr('class', 'title');
 
-        var checkData = function(d) {
-                if(rate == 'All Ages') {
-                    checking = d.all_ages;
-                } else if(rate == 'Ages 0-20') {
-                    checking = d.ages_0_20;
-                } else if(rate == 'Ages 21-34') {
-                    checking = d.ages_21_34;
-                } else if(rate == 'Ages 35+') {
-                    checking = d.ages_35;
-                } else if(rate == 'Male') {
-                    checking = d.male;
-                } else if(rate == 'Female') {
-                    checking = d.female;
-                }
-                return checking;
-        }
-
+        /* ********************************** Functions for setting scales and axes  ********************************** */
         // Function to set scales
         var setScales = function(data) {
             // Get states for the domain of x-scale
@@ -92,7 +107,7 @@ $(function() {
 
             // Get y-maximum for domain of y-scale
             var yMax = d3.max(data, function(d) {
-                return checkData(d);
+                return checkData(d)*1.1;
             });
 
             // Define the yScale
@@ -113,7 +128,7 @@ $(function() {
                 .tickFormat(d3.format('.2s'));
 
             // Call xAxis, rotate axis labels
-            xAxisLabel.transition().duration(1500).call(xAxis)
+            xAxisLabel.call(xAxis)
                 .selectAll('text')
                 .style("text-anchor", "end")
                 .attr('transform', 'rotate(-45) translate(-5, -5)');
@@ -136,21 +151,7 @@ $(function() {
 
         }
 
-        // Function to filter down data to current rate type
-        var filterData = function() {
-            currentData = allData
-                .filter(function(d) {
-                    return checkData(d);
-                })
-                
-                // Sort the data alphabetically
-                // Hint: http://stackoverflow.com/questions/6712034/sort-array-by-firstname-alphabetically-in-javascript
-                .sort(function(a, b) {
-                    if (a.state < b.state) return -1;
-                    if (a.state > b.state) return 1;
-                    return 0;
-                });
-        }
+        /* ********************************** Function for drawing bars  ********************************** */
 
         // Store the data-join in a function: make sure to set the scales and update the axes in your function.
         var draw = function(data) {
@@ -177,9 +178,14 @@ $(function() {
                 .attr('width', xScale.bandwidth())
                 .attr('class', 'bar')
                 .attr('fill', '#ff4646')
-                .attr('title', function(d) {
+                .attr('data-original-title', function(d) {
                     return (d.state + ": " + checkData(d));
                 });
+
+            // Update hover title
+            bars.attr('data-original-title', function(d) {
+                    return (d.state + ": " + checkData(d));
+            });
 
             // Remove elements not in data
             bars.exit().remove();
@@ -198,6 +204,8 @@ $(function() {
                 });
         };
 
+        /* ********************************** Event listener  ********************************** */
+
         // Change event to input elements to set rate value and update
         $("input").on('change', function() {
             var val = $(this).val();
@@ -211,6 +219,8 @@ $(function() {
         // Filter data to the current settings then draw
         filterData();
         draw(currentData);
+
+        /* ********************************** Hover tooltip  ********************************** */
 
         /* Using jQuery, select all circles and apply a tooltip */
         $("rect").tooltip({

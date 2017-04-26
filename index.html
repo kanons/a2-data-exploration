@@ -68,25 +68,25 @@
         <div class="description">
             <h2>Data Expression and Effectiveness</h2>
             <p>
-                For the visual layout, I chose to display the data in a bar chart. The data set included a list of states with corresponding death rates. 
-                By displaying the bar chart, the states’ values are discrete and the length each bar is encoded with the death rate. 
-                This design decision allows the viewer to find data that suits their interests because the bars are separate yet on the same axis. 
-                This optimally <i>expresses</i> the data set because the data is organized in a way that is easy to compare or extract values. 
-                The controls chosen for the visualization are the age and gender of the deaths. The ages and gender for these controls are individual columns in the original file where the values had to be displayed ‘as-is’. 
-                To keep the interactions intuitive, I used a button group to indicate that only one button can be activated at a time instead of separating the age and gender filters. 
-                Instead of displaying a grouped bar chart when the buttons were selected, I chose to display each chart separately to <i>effectively</i> show the data. 
-                Because there was suppressed data included in this data set, the bars for the suppressed data are not shown. Due to the gaps in the data, showing each chart separately clearly shows which data was suppressed for which state for which control. 
-                The transitions allow for the change in the data to be captured by the eye and makes it easier to compare the length and position of the bars. 
-                The data was sorted alphabetically to keep a constant between the controls. This sorting keeps the labels of the states in the same position, making it easier to track the data between controls.
+                For the visual layout, I chose to display the data in a bar chart because the dataset included discrete variables, the states, and the individual bars would best express the data effectively. 
+                The visual encodings used within the bar chart are length, position, and area. The <i>length</i> shows the value of the death rate where the solid-fill bars make it easier to compare the length of the bars with each other. 
+                The <i>position</i> of each data point is emphasized through transitions where the user is able to see the position of the top of the bars change between charts. This encoding effectively shows the difference of value between each control option. 
+                Lastly, <i>area</i> in this visual layout is used to express the drastic changes in the chart. Because the chart includes suppressed data, as the controls change, some of the bars disappear. 
+                By using bars that fill an area of the chart, the changes in which states have no bar (and no area) are easier to identify. The states are kept in alphabetical order to make it easier to keep track of the changes between charts, and 
+                a hover text shows the exact value to express more information that is not encoded in the chart itself. The controls chosen were buttons on the right side of the graph where all features are grouped into a button group. This is to keep the interaction intuitive 
+                because only one feature can be selected at a time, instead of being able to select multiple features at once. All of the data columns from the dataset are listed within the button group to express as much of the data as possible and allow the user to select data of their interest. 
+                The charts are shown one-at-a-time to best express the values of the dataset and avoid confusion. Due to the gaps within the data (from the suppressed data), if multiple features were shown at once, it would visually occlude the importance of these gaps. Therefore, showing a value at a 
+                time for each state, replacing the previous bar, best shows the transitions of value between the features and keeps the importance of the ‘blank’ data points. 
             </p>
             <h2>Control Elements: Explained</h2>
             <p>
-                The ‘All Ages’ control give an overview of the impaired driving death rates which evokes the user questions regarding the overall trend of death rates among the states. 
-                Some questions for this control could be "Which state has the highest rate?"" or something more relatable to them such as "How does Washington State compare with other states?" 
-                Each of the following ‘age’ controls of ‘0-20’, ‘21-34’, and ‘35+’ evokes questions regarding the comparison between and within each age group. For ‘0-20’, would there be lower rates? 
-                The second and third age group controls can lead the user to question the correlation between legal drinking age and death rates. For the gender controls of ‘female’ and ‘male’, it would lead to questions comparing the two groups. 
-                This could be regarding overall trends such as which has a higher rates overall, or it could be regarding which states have higher rates for which gender. Through the tools, I have found that death rates for older groups (21-35+) is higher. 
-                In addition, by using the ‘male’ and ‘female’ controls, it can be found that males have higher death rates for impaired driving.
+                The controlling elements used are different age groups and gender of the death rates. The ‘All Ages’ control gives the user an overview of the impaired driving death rates across the country. 
+                The wide range enables the user to ask questions regarding the overall trend of death rates across the country, with the option of asking detailed questions about each state. Some questions for this control could be “Which state has the highest rate” or finding data 
+                relatable to them such as “How does Washington State compare with other states?” Each of the following ‘age’ controls evokes questions regarding the comparison between and within each age group. For ‘0-20’, would there be lower rates? The ‘21-33’ and ‘35+’ age group controls 
+                can lead the user to question the correlation between legal drinking age and death rates. Because the topic is related to age due to the restrictions for driving and drinking, providing controlling elements to view the data for different age groups enables the user to compare and 
+                contrast the data using these controls. For example, through using the tools, I have found that the death rates for older groups (‘21-33’ and ‘35+’) are higher in comparison to the ‘0-20’ group. The gender controls also provide insight into the differences in death rates between 
+                the two groups, enabling the user to ask questions that discover how the rates of the two differ. For example, they can ask “Which state has the highest death rate for males?” or “Which gender has the lowest rates overall?” By using the ‘male’ and ‘female’ controls, it can be found 
+                that males have higher death rates for impaired driving. In addition, throughout these controls, the user can also focus on certain states and compare the rates for that state which enables the user to different questions regarding the details of that portion of the data. 
             </p>
         </div>
     </div>
